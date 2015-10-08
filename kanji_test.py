@@ -7,16 +7,35 @@ for kanji in root.findall('character'):
     try:
         grade = kanji[3].find('grade').text
         symbol = kanji.find('literal').text
-        onReading = []
-        kunReading = []
-        print(symbol, grade)
+        try:
+            freq = kanji[3].find('freq').text
+        except:
+            freq = "NA"
+        try:
+            jlpt = kanji[3].find('jlpt').text
+        except:
+            jlpt = "NA"
+
+        print(symbol, "grade: ", grade, "jlpt: ", jlpt, "freq: ", freq)
+
+        for node in kanji.find('dic_number'):
+            if node.attrib["dr_type"] == "nelson_c":
+                print("Nelson: ", node.text)
+            elif node.attrib["dr_type"] == "oneill_kk":
+                print("O'Neill: ", node.text)
+
         for child in kanji.find('reading_meaning')[0]:
-            if child.tag == "meaning" and not (child.attrib):
+            #python seems to behave badly with series of if statements,
+            #preferred this to be set up as if, elif, elif, else
+            if child.tag == "meaning" and (not child.attrib):
                 print("meaning: ", child.text)
-            if child.attrib["r_type"] == "ja_on":
+            elif child.attrib["r_type"] == "ja_on":
                 print("on: ", child.text)
-            if child.attrib["r_type"] == "ja_kun":
+            elif child.attrib["r_type"] == "ja_kun":
                 print("kun: ", child.text)
+            else:
+                pass
+
     except:
         pass
     #nesting nanori in separate try clause, some kanji might not have
@@ -25,5 +44,7 @@ for kanji in root.findall('character'):
         for child in kanji.find('reading_meaning'):
             if child.tag == "nanori":
                 print("nanori", child.text)
+            else:
+                pass
     except:
         pass
