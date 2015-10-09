@@ -1,43 +1,69 @@
 # encoding: utf-8
 import xml.etree.ElementTree as ET
+from collections import OrderedDict
+
 tree = ET.parse('kanjidic2.xml')
 root = tree.getroot()
 
+masterDictionary = OrderedDict()
+
 for kanji in root.findall('character'):
     if kanji[3].find('grade') is not None:
-        grade = kanji[3].find('grade').text
+        grade = int(kanji[3].find('grade').text)
         symbol = kanji.find('literal').text
         try:
             freq = kanji[3].find('freq').text
         except:
             freq = "NA"
+
         try:
             jlpt = kanji[3].find('jlpt').text
         except:
             jlpt = "NA"
 
-        print(symbol, "grade: ", grade, "jlpt: ", jlpt, "freq: ", freq)
+        tempdict = OrderedDict()
+        tempdict["grade"] = grade
+        tempdict["jlpt"] = jlpt
+        tempdict["freq"] = freq
 
         for node in kanji.find('dic_number'):
             if node.attrib["dr_type"] == "nelson_c":
-                print("Nelson: ", node.text)
+                tempdict["Nelson"] = node.text
             elif node.attrib["dr_type"] == "oneill_kk":
-                print("O'Neill: ", node.text)
+                tempdict["O'Neill"] = node.text
+            else:
+                pass
+
+        meaning = []
+        onyomi = []
+        kunyomi = []
 
         for child in kanji.find('reading_meaning')[0]:
             #python seems to behave badly with series of if statements,
             #preferred this to be set up as if, elif, elif, else
             if (child.tag == "meaning") and (child.attrib == {}):
-                print("meaning: ", child.text)
+                meaning.append(child.text)
             elif ("r_type" in child.attrib) and (child.attrib["r_type"] == "ja_on"):
-                print("on: ", child.text)
+                onyomi.append(child.text)
             elif ("r_type" in child.attrib) and (child.attrib["r_type"] == "ja_kun"):
-                print("kun: ", child.text)
+                kunyomi.append(child.text)
             else:
                 pass
 
+        nanori = []
         for child in kanji.find('reading_meaning'):
             if child.tag == "nanori":
-                print("nanori", child.text)
+                nanori.append(child.text)
             else:
                 pass
+
+        tempdict["ja_on"] = onyomi
+        tempdict["ja_kun"] = kunyomi
+        tempdict["meaning"] = meaning
+        tempdict["nanori"] = nanori
+
+        masterDictionary[symbol] = tempdict
+
+print(len(masterDictionary))
+print(masterDictionary)
+print(masterDictionary["木"])
