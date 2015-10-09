@@ -1,6 +1,7 @@
 # encoding: utf-8
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
+from math import sqrt
 
 tree = ET.parse('kanjidic2.xml')
 root = tree.getroot()
@@ -65,5 +66,35 @@ for kanji in root.findall('character'):
         masterDictionary[symbol] = tempdict
 
 print(len(masterDictionary))
-print(masterDictionary)
-print(masterDictionary["木"])
+
+#Will use the dictionary to try grade-level analysis on the
+#Iroha poem written in Man'yogana
+#Thinking about turning this into a feature for text analysis
+
+iroha = "以 呂 波 耳 本 部 止千 利 奴 流 乎 和 加餘 多 連 曽 津 祢 那良 牟 有 為 能 於 久耶 万 計 不 己 衣 天阿 佐 伎 喩 女 美 之恵 比 毛 勢 須"
+iroha = iroha.replace(" ","")
+print(iroha)
+charArray = []
+for char in iroha:
+    if char in masterDictionary:
+        grade = int(masterDictionary[char]["grade"])
+        charArray.append(grade)
+    else:
+        pass
+print(charArray)
+
+def avg(x):
+    return sum(x)/len(x)
+
+def variance(x):
+    x_bar = avg(x)
+    list = [(x_i - x_bar)**2 for x_i in x]
+    return sum(list)/(len(list) - 1)
+
+def sd(x):
+    return sqrt(variance(x))
+
+print("Average kanji grade level:", avg(charArray))
+print("Variance:", variance(charArray))
+print("Standard Deviation:", sd(charArray))
+print(masterDictionary["祢"])
