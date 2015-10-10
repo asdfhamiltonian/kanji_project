@@ -4,8 +4,8 @@ This package uses the KANJIDIC dictionary files. (see http://www.csse.monash.edu
 These files are the property of the Electronic Dictionary Research and Development Group,
 and are used in conformance with the Group's licence.
 '''
-
 import xml.etree.ElementTree as ET
+
 tree = ET.parse('kanjidic2.xml')
 root = tree.getroot()
 
